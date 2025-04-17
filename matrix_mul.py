@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+"""
+./matrix_mul.py -o matrix_transpose.mp4
+
+"""
 import cairo as c
 import argparse
 from subprocess import Popen, PIPE
@@ -254,14 +258,13 @@ class MatrixDrawerLine(MatrixDrawer):
         ctx.close_path()
 
 a = Matrix('A')
-b = Matrix('B', args.transpose)
-c = Matrix('C')
+c = Matrix('C', args.transpose)
 
 class Stats:
-    def __init__(self, a, b, c):
-        ac = a.accesses + b.accesses + c.accesses
-        L1 = a.L1_hits + b.L1_hits + c.L1_hits
-        L2 = a.L2_hits + b.L2_hits + c.L2_hits
+    def __init__(self, a, c):
+        ac = a.accesses + c.accesses
+        L1 = a.L1_hits + c.L1_hits
+        L2 = a.L2_hits + c.L2_hits
         self.mem = ac
         self.L1h = L1
         self.L2h = L2
@@ -280,22 +283,20 @@ def draw_matrices():
         dist = 1.2
         ctx.translate(20, 25)
         ctx.set_font_size(10)
-        ctx.show_text("Matrix multiplication: " + args.title)
+        ctx.show_text("Matrix transpose: ")
         ctx.translate(0, 20)
         ctx.scale(100, 100)
         ctx.set_font_size(1/12)
         with Save(ctx):
             MatrixDrawerRect(a)
-        with Translate(ctx, 1.05, 0.5):
-            ctx.show_text("×")
-        with Translate(ctx, dist, 0):
-            MatrixDrawerRect(b)
-        with Translate(ctx, 2.25, 0.5):
-            ctx.show_text("=")
-        with Translate(ctx, 2*dist, 0):
+        # with Translate(ctx, 1.05, 0.5):
+        #     ctx.show_text("×")
+        with Translate(ctx, 1.6, 0.5):
+             ctx.show_text("=")
+        with Translate(ctx, 1.8*dist, 0):
             MatrixDrawerRect(c)
         with Translate(ctx, 0.0, 1.15):
-            stat = Stats(a, b, c)
+            stat = Stats(a, c)
             if args.L1 > 0:
                 ctx.show_text("Totals: mem:%(mem)-4d    L1 hits:%(L1h)-4d≅%(L1p)2d%%    L2 hits:%(L2h)-4d≅%(L2p)2d%%    cache hits:%(cache)-4d≅%(cachep)2d%%" % stat.__dict__)
             else:
@@ -309,8 +310,6 @@ def draw_memory():
         ctx.scale(170, 170)
         with Translate(ctx, 0, 0):
             MatrixDrawerLine(a)
-        with Translate(ctx, 0, dist):
-            MatrixDrawerLine(b)
         with Translate(ctx, 0, 2*dist):
             MatrixDrawerLine(c)
 
@@ -319,16 +318,12 @@ block2_size = args.block2
 block1_size = args.block1
 for i2 in range(0, Matrix.size, block2_size):
     for j2 in range(0, Matrix.size, block2_size):
-        for k2 in range(0, Matrix.size, block2_size):
             for i1 in range(i2, i2+block2_size, block1_size):
                 for j1 in range(j2, j2+block2_size, block1_size):
-                    for k1 in range(k2, k2+block2_size, block1_size):
                         for i in range(i1, i1+block1_size):
                             for j in range(j1, j1+block1_size):
-                                for k in range(k1, k1+block1_size):
-                                    c.access(i, j)
-                                    a.access(i, k)
-                                    b.access(k, j)
+                                    c.access(j, i)
+                                    a.access(i, j)
 
                                     #if cnt < 100:
                                     if True:
@@ -344,7 +339,7 @@ for i2 in range(0, Matrix.size, block2_size):
                                             surface.write_to_png(ffmpeg.stdin)
                                     cnt += 1
 
-print(Stats(a, b, c))
+print(Stats(a, c))
 
 if not pdf:
     ffmpeg.stdin.close()
