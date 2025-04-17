@@ -13,6 +13,14 @@ $(MMUL_VIDEOS): matrix_mul.py
 clean:
 	rm -rf $(MMUL_ANIMS) $(MMUL_VIDEOS)
 
+transpose: matrix_transpose.mp4 matrix-transpose-tiled.mp4
+
+matrix_transpose.mp4: matrix_mul.py
+	./$< -o $@
+
+matrix-transpose-tiled.mp4: matrix_mul.py
+	./$< -o $@ --title "Transpose tiled" --block1=4
+
 ANIM_FLAGS-mmul_0naive = --title "Naive"
 ANIM_FLAGS-mmul_1trans = --title "B transposed" --transpose
 ANIM_FLAGS-mmul_2trans_block = --title "Tiled, B transposed" --transpose --block1=4
