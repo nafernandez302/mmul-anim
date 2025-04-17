@@ -11,15 +11,15 @@ $(MMUL_VIDEOS): matrix_mul.py
 	./$< -o $@ $(ANIM_FLAGS-$(basename $@))
 
 clean:
-	rm -rf $(MMUL_ANIMS) $(MMUL_VIDEOS)
+	rm -rf $(MMUL_ANIMS) $(MMUL_VIDEOS) matrix_transpose.mp4 matrix_transpose_tiled.mp4
 
-transpose: matrix_transpose.mp4 matrix-transpose-tiled.mp4
+transpose: matrix_transpose.mp4 matrix_transpose_tiled.mp4
 
 matrix_transpose.mp4: matrix_mul.py
-	./$< -o $@
+	./$< -o $@ --title "Naive"
 
-matrix-transpose-tiled.mp4: matrix_mul.py
-	./$< -o $@ --title "Transpose tiled" --block1=4
+matrix_transpose_tiled.mp4: matrix_mul.py
+	./$< -o $@ --title "Tiled" --block1=4
 
 ANIM_FLAGS-mmul_0naive = --title "Naive"
 ANIM_FLAGS-mmul_1trans = --title "B transposed" --transpose

@@ -283,7 +283,7 @@ def draw_matrices():
         dist = 1.2
         ctx.translate(20, 25)
         ctx.set_font_size(10)
-        ctx.show_text("Matrix transpose: ")
+        ctx.show_text("Matrix transpose: " + args.title)
         ctx.translate(0, 20)
         ctx.scale(100, 100)
         ctx.set_font_size(1/12)
